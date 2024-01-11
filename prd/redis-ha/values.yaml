@@ -1,0 +1,66 @@
+redis:
+  enabled: true
+  global:
+    storageClass: topolvm-provisioner
+  
+  clusterDomain: k8s.ba1.exchange.neor.space
+
+  architecture: replication
+
+  auth:
+    enabled: true
+    sentinel: true
+    password: "redis"
+
+  replica:
+    replicaCount: 3
+    persistence:
+      enabled: true
+      size: 5Gi
+    resources:
+      requests:
+        cpu: 500m
+        memory: 500Mi
+      limits:
+        cpu: 1
+        memory: 1Gi
+
+  sentinel:
+    enabled: true
+    masterSet: ar-exchange-master
+    quorum: 2
+    persistence:
+      enabled: true
+      size: 500Mi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 250Mi
+      limits:
+        cpu: 1
+        memory: 1Gi
+
+  metrics:
+    enabled: true
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        cpu: 200m
+        memory: 200Mi
+    serviceMonitor:
+      enabled: true
+      namespace: kube-prometheus-stack
+      additionalLabels:
+        release: kube-prometheus-stack
+    podMonitor:
+      enabled: true
+      namespace: kube-prometheus-stack
+      additionalLabels:
+        release: kube-prometheus-stack
+    prometheusRule:
+      enabled: true
+      namespace: kube-prometheus-stack
+      additionalLabels:
+        release: kube-prometheus-stack

@@ -1,0 +1,42 @@
+kibanaIngress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prd
+  host: kibana.exchange.neor.space
+  tlsSecretName: kibana-ba1-neor-space-tls
+
+elasticsearchIngress:
+  enabled: false
+
+eck-stack:
+  eck-kibana:
+    annotations:
+      eck.k8s.elastic.co/license: basic
+    spec:
+      http:
+        tls:
+          selfSignedCertificate:
+            disabled: true
+
+  eck-elasticsearch:
+    annotations:
+      eck.k8s.elastic.co/license: basic
+    http:
+      tls:
+        selfSignedCertificate:
+          disabled: true
+    nodeSets:
+    - name: default
+      count: 3
+      config:
+        node.store.allow_mmap: false
+      volumeClaimTemplates:
+      - metadata:
+          name: elasticsearch-data # Do not change this name unless you set up a volume mount for the data path.
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 5Gi
+          storageClassName: topolvm-provisioner

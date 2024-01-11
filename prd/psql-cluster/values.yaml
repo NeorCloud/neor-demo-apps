@@ -1,0 +1,39 @@
+postgrescluster:
+  enabled: true
+  postgresVersion: 14
+  pgBouncerReplicas: 2
+  monitoring: true
+  instances:
+  - name: pgha1
+    replicas: 3
+    dataVolumeClaimSpec:
+      storageClassName: topolvm-provisioner
+      accessModes:
+      - "ReadWriteOnce"
+      resources:
+        requests:
+          storage: 5Gi
+    resources:
+      requests:
+        memory: 1Gi
+        cpu: 1000m
+      limits:
+        memory: 2Gi
+        cpu: 2000m
+  patroni:
+    dynamicConfiguration:
+      synchronous_mode: true
+      postgresql:
+        parameters:
+          synchronous_commit: "on"
+  users:
+  - name: exhchange-admin
+    databases:
+    - exchange_db
+  s3:
+    bucket: "exchange-sample-bucket"
+    endpoint: "s3.ir-thr-at1.arvanstorage.ir"
+    region: "ir-thr-at1"
+    key: "samplePass"
+    keySecret: "samplePass"
+    encryptionPassphrase: "samplePass"

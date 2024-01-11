@@ -1,0 +1,10 @@
+apiVersion: v2
+name: mongodb-cluster
+description: "An Umbrella Helm Chart for bitnami mongodb"
+type: application
+version: 0.1.0
+dependencies:
+- name: mongodb
+  version: 14.x.x
+  repository: oci://registry-1.docker.io/bitnamicharts
+  condition: mongodb.enabled

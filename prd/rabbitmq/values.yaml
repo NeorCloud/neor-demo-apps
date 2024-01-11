@@ -1,0 +1,48 @@
+rabbitmq:
+  enabled: true
+  global:
+    storageClass: topolvm-provisioner
+  
+  clusterDomain: k8s.ba1.exchange.neor.space
+
+  architecture: replicaset
+
+  auth:
+    user: rabbit-admin
+    password: samplePass
+    erlangCookie: samplePass
+  
+  maxAvailableSchedulers: "4"
+  onlineSchedulers: "2"
+
+  clustering:
+    enabled: true
+
+  replicaCount: 3
+
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 256Mi
+    limits:
+      cpu: 2000m
+      memory: 1Gi
+
+  persistence:
+    enabled: true
+    size: 5Gi
+
+  metrics:
+    enabled: true
+
+    serviceMonitor:
+      enabled: true
+      namespace: kube-prometheus-stack
+      labels:
+        release: kube-prometheus-stack
+
+    prometheusRule:
+      enabled: true
+      namespace: kube-prometheus-stack
+      additionalLabels:
+        release: kube-prometheus-stack

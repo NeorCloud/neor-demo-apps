@@ -1,0 +1,95 @@
+webapp-base:
+  enabled: true
+  replicaCount: 10
+  image: &image
+    repository: registry.sh1.exchange.neor.space/backend/panel
+    pullPolicy: IfNotPresent
+    tag: master-764b8c58ea0051daeedba6ca88f71e2fa73f2f27
+  imagePullSecrets: &imagePullSecrets
+    - name: sh1-registry
+  service:
+    type: ClusterIP
+    port: 8000
+  ingress:
+    enabled: true
+    className: "kong"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prd"
+    hosts:
+      - host: exchange.neor.space
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls:
+      - secretName: exchange-neor-space-tls
+        hosts:
+          - exchange.neor.space
+  env:
+    TZ: Asia/Tehran
+    ALLOWED_HOSTS: "*"
+    API_KEY: "sPixBruookNfbJEknMVbweAsPi"
+    SECRET_KEY: "xyjp2t)0(%7_h389)5!w44=y7ncz2fe6k5%tmn$a%j+(()8e9"
+    DEBUG: "False"
+    CSRF_TRUSTED_ORIGINS: "https://exchange.neor.space,http://127.0.0.1"
+  secretEnv:
+    - name: DATABASE_PASSWORD
+      secretName: psql-cluster-pguser-exhchange-admin
+      key: password
+    - name: DATABASE_USER
+      secretName: psql-cluster-pguser-exhchange-admin
+      key: user
+    - name: DATABASE_NAME
+      secretName: psql-cluster-pguser-exhchange-admin
+      key: dbname
+    - name: DATABASE_HOST
+      secretName: psql-cluster-pguser-exhchange-admin
+      key: pgbouncer-host
+    - name: DATABASE_PORT
+      secretName: psql-cluster-pguser-exhchange-admin
+      key: pgbouncer-port
+  resources:
+    limits:
+      cpu: 1
+      memory: 512Mi
+    requests:
+      cpu: 500m
+      memory: 128Mi
+  podSecurityContext:
+    fsGroup: 1000
+  securityContext:
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+  preUpgradeJobs:
+    - name: migrate
+      image: *image
+      imagePullSecrets: *imagePullSecrets
+      command: ["python"]
+      args: ["manage.py", "migrate"]
+  livenessProbe:
+    enabled: true
+    path: /
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  readinessProbe:
+    enabled: true
+    path: /
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  startupProbe:
+    enabled: false
+    path: /
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1

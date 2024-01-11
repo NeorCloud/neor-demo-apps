@@ -1,0 +1,10 @@
+apiVersion: v2
+name: redis-ha
+description: "High available redis cluster"
+version: 0.1.0
+type: application
+dependencies:
+- name: redis
+  version: 18.x.x
+  repository: oci://registry-1.docker.io/bitnamicharts
+  condition: redis.enabled

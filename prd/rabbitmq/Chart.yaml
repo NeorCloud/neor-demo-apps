@@ -1,0 +1,10 @@
+apiVersion: v2
+name: rabbitmq-cluster
+description: "An Umbrella Helm Chart for bitnami rabbitmq"
+type: application
+version: 0.1.0
+dependencies:
+- name: rabbitmq
+  version: 12.x.x
+  repository: oci://registry-1.docker.io/bitnamicharts
+  condition: rabbitmq.enabled

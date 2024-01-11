@@ -1,0 +1,80 @@
+{{ if .Values.kibanaIngress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: eck-stack-kibana
+  annotations:
+    {{ if .Values.kibanaIngress.annotations }}
+    {{ toYaml .Values.kibanaIngress.annotations | nindent 4 }}
+    {{ end }}
+spec:
+  rules:
+    - host: {{ .Values.kibanaIngress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-eck-kibana-kb-http
+                port:
+                  number: 5601
+  tls:
+    - hosts:
+        - {{ .Values.kibanaIngress.host }}
+      secretName: {{ .Values.kibanaIngress.tlsSecretName }}
+{{ end }}
+{{ if .Values.elasticsearchIngress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: eck-stack-es
+  annotations:
+    {{ if .Values.elasticsearchIngress.annotations }}
+    {{ toYaml .Values.elasticsearchIngress.annotations | nindent 4 }}
+    {{ end }}
+spec:
+  rules:
+    - host: {{ .Values.elasticsearchIngress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: elasticsearch-es-http
+                port:
+                  number: 9200
+  tls:
+    - hosts:
+        - {{ .Values.elasticsearchIngress.host }}
+      secretName: {{ .Values.elasticsearchIngress.tlsSecretName }}
+{{ end }}
+{{ if and .Values.logstash .Values.logstash.ingress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: eck-stack-logstash
+  annotations:
+    {{ if .Values.logstash.ingress.annotations }}
+    {{ toYaml .Values.logstash.ingress.annotations | nindent 4 }}
+    {{ end }}
+spec:
+  rules:
+    - host: {{ .Values.logstash.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: logstash-ls-tcp-syslog
+                port:
+                  number: 5044
+  tls:
+    - hosts:
+        - {{ .Values.logstash.ingress.host }}
+      secretName: {{ .Values.logstash.ingress.tlsSecretName }}
+{{ end }}
